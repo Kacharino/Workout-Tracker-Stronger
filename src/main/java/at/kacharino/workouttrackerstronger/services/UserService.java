@@ -2,11 +2,14 @@ package at.kacharino.workouttrackerstronger.services;
 
 import at.kacharino.workouttrackerstronger.dtos.LoginRequestDto;
 import at.kacharino.workouttrackerstronger.dtos.RegisterRequestDto;
+import at.kacharino.workouttrackerstronger.dtos.UserDto;
 import at.kacharino.workouttrackerstronger.entities.User;
 import at.kacharino.workouttrackerstronger.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -33,7 +36,6 @@ public class UserService {
         if (registerRequestDto.getPassword() == null || registerRequestDto.getPassword().trim().isEmpty()) {
             throw new IllegalArgumentException("Password must not be null or empty.");
         }
-
 
         //Check if email already exists
         if (userRepository.findByEmail(registerRequestDto.getEmail()).isPresent()) {
@@ -62,6 +64,16 @@ public class UserService {
             throw new IllegalArgumentException("Password is incorrect");
         }
         return true;
+    }
+
+    public UserDto getUserById(Long id) {
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isPresent()) {
+            var user = userOptional.get();
+            return new UserDto(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail());
+        } else {
+            throw new IllegalArgumentException("User not found with id: " + id);
+        }
     }
 
 

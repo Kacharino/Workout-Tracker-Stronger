@@ -2,6 +2,7 @@ package at.kacharino.workouttrackerstronger.controllers;
 
 import at.kacharino.workouttrackerstronger.dtos.LoginRequestDto;
 import at.kacharino.workouttrackerstronger.dtos.RegisterRequestDto;
+import at.kacharino.workouttrackerstronger.dtos.UserDto;
 import at.kacharino.workouttrackerstronger.repositories.UserRepository;
 import at.kacharino.workouttrackerstronger.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,10 +52,19 @@ public class UserController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable Long id){
+        try {
+            UserDto userDto = userService.getUserById(id);
+            return ResponseEntity.ok(userDto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<String> handleBadJsonForRegister(
-            HttpMessageNotReadableException ex,
             HttpServletRequest request) {
 
         if (request.getRequestURI().equals("/users/register")) {
