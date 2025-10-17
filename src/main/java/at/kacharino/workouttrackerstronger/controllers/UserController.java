@@ -62,6 +62,16 @@ public class UserController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUserById(@PathVariable Long id) {
+        try {
+            userService.deleteUserById(id);
+            return ResponseEntity.ok("User deleted successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<String> handleBadJsonForRegister(

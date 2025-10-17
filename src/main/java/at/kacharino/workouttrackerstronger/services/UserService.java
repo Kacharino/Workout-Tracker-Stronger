@@ -18,13 +18,13 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     /* TODO:
-    * resetPassword,
-    * deleteUser, getUserById
-    * */
+     * resetPassword,
+     * deleteUser, getUserById
+     * */
 
     public boolean registerNewUser(RegisterRequestDto registerRequestDto) {
         // Check if registerRequestDto has an empty or null field
-        if (registerRequestDto.getFirstName() == null || registerRequestDto.getFirstName().trim().isEmpty() ) {
+        if (registerRequestDto.getFirstName() == null || registerRequestDto.getFirstName().trim().isEmpty()) {
             throw new IllegalArgumentException("FirstName must not be null or empty.");
         }
         if (registerRequestDto.getLastName() == null || registerRequestDto.getLastName().trim().isEmpty()) {
@@ -74,6 +74,14 @@ public class UserService {
         } else {
             throw new IllegalArgumentException("User not found with id: " + id);
         }
+    }
+
+
+    public void deleteUserById(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new IllegalArgumentException("User not found with id: " + id);
+        }
+        userRepository.deleteById(id);
     }
 
 
