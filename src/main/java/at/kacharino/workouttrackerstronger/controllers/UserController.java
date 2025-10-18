@@ -18,55 +18,55 @@ public class UserController {
     UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody RegisterRequestDto registerRequestDto) {
+    public ResponseEntity<ApiResponse<String>> registerUser(@RequestBody RegisterRequestDto registerRequestDto) {
         try {
             boolean success = userService.registerNewUser(registerRequestDto);
-            if (success) return ResponseEntity.ok("User registered successfully");
+            if (success) return ResponseEntity.ok(ApiResponse.success("User registered successfully"));
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Unknown error occurred during registration");
+                    .body(ApiResponse.error("Unknown error occurred during registration"));
 
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.error(e.getMessage()));
         }
 
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequestDto loginRequestDto) {
+    public ResponseEntity<ApiResponse<String>> loginUser(@RequestBody LoginRequestDto loginRequestDto) {
         try {
             boolean success = userService.loginUser(loginRequestDto);
-            if (success) return ResponseEntity.ok("User login successful");
+            if (success) return ResponseEntity.ok(ApiResponse.success("User login successful"));
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Unknown error occurred during login");
+                    .body(ApiResponse.error("Unknown error occurred during login"));
 
         } catch (IllegalArgumentException e) {
             if (e.getMessage().toLowerCase().contains("password")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(e.getMessage()));
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));
             }
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<UserDto>> getUserById(@PathVariable Long id){
         try {
             UserDto userDto = userService.getUserById(id);
-            return ResponseEntity.ok(userDto);
+            return ResponseEntity.ok(ApiResponse.success(userDto));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUserById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<String>> deleteUserById(@PathVariable Long id) {
         try {
             userService.deleteUserById(id);
-            return ResponseEntity.ok("User deleted successfully");
+            return ResponseEntity.ok(ApiResponse.success("User deleted successfully"));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -88,13 +88,13 @@ public class UserController {
 
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<String> handleBadJsonForRegister(
+    public ResponseEntity<ApiResponse<String>> handleBadJsonForRegister(
             HttpServletRequest request) {
 
         if (request.getRequestURI().equals("/users/register")) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("""
+                    .body(ApiResponse.error("""
                             Your JSON body is empty or malformed.
                             Example of a valid register format:
                             {
@@ -103,24 +103,24 @@ public class UserController {
                               "email": "mausi@example.com",
                               "password": "1234"
                             }
-                            """);
+                            """));
         } else if (request.getRequestURI().equals("/users/login")) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("""
+                    .body(ApiResponse.error("""
                             Your JSON body is empty or malformed.
                             Example of a valid login format:
                             {
                               "email": "mausi@example.com",
                               "password": "1234"
                             }
-                            """);
+                            """));
         }
 
         // alle anderen Endpoints: Standardantwort
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body("Request body is missing or malformed.");
+                .body(ApiResponse.error("Request body is missing or malformed."));
     }
 
 
