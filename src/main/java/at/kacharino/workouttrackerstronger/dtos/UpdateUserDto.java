@@ -11,12 +11,11 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
-    private Long id;
+public class UpdateUserDto {
     private String firstName;
     private String lastName;
-    private String email;
     private LocalDate birthdate;
+    private String email;
     private Double weight;
     private Double height;
 }

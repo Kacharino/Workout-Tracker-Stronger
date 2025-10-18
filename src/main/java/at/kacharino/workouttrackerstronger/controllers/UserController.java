@@ -1,8 +1,6 @@
 package at.kacharino.workouttrackerstronger.controllers;
 
-import at.kacharino.workouttrackerstronger.dtos.LoginRequestDto;
-import at.kacharino.workouttrackerstronger.dtos.RegisterRequestDto;
-import at.kacharino.workouttrackerstronger.dtos.UserDto;
+import at.kacharino.workouttrackerstronger.dtos.*;
 import at.kacharino.workouttrackerstronger.repositories.UserRepository;
 import at.kacharino.workouttrackerstronger.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -69,6 +67,22 @@ public class UserController {
             return ResponseEntity.ok("User deleted successfully");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ApiResponse<UserDto>> updateUserById(@PathVariable Long id, @RequestBody UpdateUserDto updateUserDto) {
+        try {
+            var userDto = userService.updateUserById(id, updateUserDto);
+            return ResponseEntity.ok(ApiResponse.success(userDto));
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().toLowerCase().contains("email")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.error(e.getMessage()));
+            } else if (e.getMessage().toLowerCase().contains("not found")){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(e.getMessage()));
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error("Internal Server Error."));
+            }
         }
     }
 

@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "users")
@@ -28,7 +28,7 @@ public class User {
     private String lastName;
 
     @Column(name = "birthdate")
-    private Date birthdate;
+    private LocalDate birthdate;
 
     @Column(name = "email")
     private String email;
@@ -37,10 +37,10 @@ public class User {
     private String password;
 
     @Column(name = "weight")
-    private Float weight;
+    private Double weight;
 
     @Column(name = "height")
-    private Float height;
+    private Double height;
 
 
 
