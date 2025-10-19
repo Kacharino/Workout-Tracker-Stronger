@@ -17,6 +17,10 @@ public class UserController {
     UserRepository userRepository;
     UserService userService;
 
+    /*TODO:
+     * Nach all die Core Features: Authentifizierung mit JWT
+     * */
+
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<String>> registerUser(@RequestBody RegisterRequestDto registerRequestDto) {
         try {
@@ -122,10 +126,5 @@ public class UserController {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error("Request body is missing or malformed."));
     }
-
-
-    /*TODO:
-     * Nächster Schritt: Authentifizierung
-     * */
 
 }

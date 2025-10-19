@@ -20,7 +20,6 @@ public class UserService {
 
     /* TODO:
      * resetPassword,
-     * deleteUser, getUserById
      * */
 
     public boolean registerNewUser(RegisterRequestDto registerRequestDto) {

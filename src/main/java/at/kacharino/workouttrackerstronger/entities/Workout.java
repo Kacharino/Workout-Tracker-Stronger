@@ -1,11 +1,19 @@
 package at.kacharino.workouttrackerstronger.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.sql.Time;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "workout")
 public class Workout {
 
@@ -18,10 +26,14 @@ public class Workout {
     private String workoutName;
 
     @Column(name = "date")
-    private Date date;
+    private LocalDate date;
 
-    @Column(name = "time")
-    private Time time;
+    @Column(name = "duration")
+    private LocalTime duration;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
 
 
