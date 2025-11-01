@@ -2,12 +2,13 @@ package at.kacharino.workouttrackerstronger.services;
 
 import at.kacharino.workouttrackerstronger.dtos.UpdateWorkoutDto;
 import at.kacharino.workouttrackerstronger.dtos.WorkoutDto;
-import at.kacharino.workouttrackerstronger.entities.Workout;
 import at.kacharino.workouttrackerstronger.exceptions.NoContentException;
+import at.kacharino.workouttrackerstronger.exceptions.UserNotFoundException;
+import at.kacharino.workouttrackerstronger.exceptions.ValidationException;
+import at.kacharino.workouttrackerstronger.exceptions.WorkoutNotFoundException;
 import at.kacharino.workouttrackerstronger.mappers.WorkoutMapper;
 import at.kacharino.workouttrackerstronger.repositories.UserRepository;
 import at.kacharino.workouttrackerstronger.repositories.WorkoutRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,24 +22,28 @@ public class WorkoutService {
     private WorkoutMapper workoutMapper;
 
     public WorkoutDto createWorkout(WorkoutDto workoutDto) {
-        //userId muss existieren
-        if (userRepository.findById(workoutDto.getUserId()).isEmpty()) {
-            throw new IllegalArgumentException("User does not exists.");
-        } else {
-            Workout workout = workoutMapper.toEntity(workoutDto);
-            var savedWorkout = workoutRepository.save(workout);
-            return workoutMapper.toDto(savedWorkout);
+        if (workoutDto.getWorkoutName() == null || workoutDto.getWorkoutName().isBlank()) {
+            throw new ValidationException("Workout name must not be empty.");
         }
+        //userId muss existieren
+        var user = userRepository.findById(workoutDto.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + workoutDto.getUserId()));
+
+        var workout = workoutMapper.toEntity(workoutDto);
+        workout.setUser(user);
+
+        var savedWorkout = workoutRepository.save(workout);
+        return workoutMapper.toDto(savedWorkout);
     }
 
     public WorkoutDto getWorkoutById(Long id) {
         var workout = workoutRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Workout with given ID does not exist."));
+                .orElseThrow(() -> new WorkoutNotFoundException("Workout with given ID does not exist."));
         return workoutMapper.toDto(workout);
     }
 
 
-    public List<WorkoutDto> getWorkoutByUserId(Long userId) {
+    public List<WorkoutDto> getWorkoutsByUserId(Long userId) {
         var workouts = workoutRepository.findByUserId(userId);
         if (workouts.isEmpty()) {
             throw new NoContentException("No workouts found for this user.");
@@ -48,7 +53,7 @@ public class WorkoutService {
 
     public WorkoutDto updateWorkoutById(Long id, UpdateWorkoutDto updateWorkoutDto) {
         var workout = workoutRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Workout with given ID does not exist."));
+                .orElseThrow(() -> new WorkoutNotFoundException("Workout with given ID does not exist."));
 
         // Optionale Updates pro feld
         if (updateWorkoutDto.getWorkoutName() != null) workout.setWorkoutName(updateWorkoutDto.getWorkoutName());
@@ -62,7 +67,7 @@ public class WorkoutService {
 
     public String deleteWorkoutById(Long id) {
         var workout = workoutRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Workout with given ID does not exist."));
+                .orElseThrow(() -> new WorkoutNotFoundException("Workout with given ID does not exist."));
         workoutRepository.delete(workout);
         return "Workout deleted successfully.";
     }
