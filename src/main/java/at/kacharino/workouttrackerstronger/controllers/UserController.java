@@ -35,7 +35,6 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserDto>> getUserById(@PathVariable Long id) {
         UserDto userDto = userService.getUserById(id);
         return ResponseEntity.ok(ApiResponse.success(userDto));
-
     }
 
     @DeleteMapping("/{id}")

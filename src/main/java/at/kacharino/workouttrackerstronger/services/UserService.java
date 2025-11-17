@@ -46,6 +46,8 @@ public class UserService {
         }
 
         var newUser = userMapper.toEntity(registerRequestDto);
+        newUser.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
+
         userRepository.save(newUser);
     }
 
