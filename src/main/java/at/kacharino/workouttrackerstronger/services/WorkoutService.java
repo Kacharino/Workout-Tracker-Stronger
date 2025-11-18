@@ -64,7 +64,6 @@ public class WorkoutService {
         return workoutMapper.toDto(savedWorkout);
     }
 
-
     public String deleteWorkoutById(Long id) {
         var workout = workoutRepository.findById(id)
                 .orElseThrow(() -> new WorkoutNotFoundException("Workout with given ID does not exist."));

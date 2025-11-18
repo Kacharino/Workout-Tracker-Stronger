@@ -28,6 +28,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
+    @InjectMocks
+    UserService userService;
 
     @Mock
     UserRepository userRepository;
@@ -37,9 +39,6 @@ class UserServiceTest {
 
     @Mock
     PasswordEncoder passwordEncoder;
-
-    @InjectMocks
-    UserService userService;
 
     // --------------------------------------------------------
     // registerNewUser()
