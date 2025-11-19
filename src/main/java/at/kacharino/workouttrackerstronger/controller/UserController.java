@@ -1,7 +1,6 @@
-package at.kacharino.workouttrackerstronger.controllers;
+package at.kacharino.workouttrackerstronger.controller;
 
 import at.kacharino.workouttrackerstronger.dtos.*;
-import at.kacharino.workouttrackerstronger.repositories.UserRepository;
 import at.kacharino.workouttrackerstronger.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-    UserRepository userRepository;
     UserService userService;
 
     /*TODO:
@@ -47,7 +45,6 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserDto>> updateUserById(@PathVariable Long id, @RequestBody UpdateUserDto updateUserDto) {
         var userDto = userService.updateUserById(id, updateUserDto);
         return ResponseEntity.ok(ApiResponse.success(userDto));
-
     }
 
 }

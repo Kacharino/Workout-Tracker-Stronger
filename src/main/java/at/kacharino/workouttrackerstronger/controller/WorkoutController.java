@@ -1,4 +1,4 @@
-package at.kacharino.workouttrackerstronger.controllers;
+package at.kacharino.workouttrackerstronger.controller;
 
 import at.kacharino.workouttrackerstronger.dtos.ApiResponse;
 import at.kacharino.workouttrackerstronger.dtos.UpdateWorkoutDto;
