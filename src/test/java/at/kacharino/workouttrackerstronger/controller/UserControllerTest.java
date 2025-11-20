@@ -117,8 +117,12 @@ public class UserControllerTest {
 
         var returnedDto = new UserDto();
         returnedDto.setId(id);
+        returnedDto.setFirstName("Maxi");
+        returnedDto.setLastName("Maximus");
+        returnedDto.setEmail("max@email.com");
         returnedDto.setBirthdate(LocalDate.of(2001, 9, 11));
         returnedDto.setWeight(72.4);
+        returnedDto.setHeight(177.0);
 
         when(userService.updateUserById(eq(id), any(UpdateUserDto.class)))
                 .thenReturn(returnedDto);
@@ -128,8 +132,13 @@ public class UserControllerTest {
                         .content(json))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(1))
+                .andExpect(jsonPath("$.data.firstName").value("Maxi"))
+                .andExpect(jsonPath("$.data.lastName").value("Maximus"))
+                .andExpect(jsonPath("$.data.email").value("max@email.com"))
                 .andExpect(jsonPath("$.data.birthdate").value("2001-09-11"))
-                .andExpect(jsonPath("$.data.weight").value(72.4));
+                .andExpect(jsonPath("$.data.weight").value(72.4))
+                .andExpect(jsonPath("$.data.height").value(177.0));
+
 
         verify(userService).updateUserById(eq(id), any(UpdateUserDto.class));
     }
