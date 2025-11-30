@@ -61,7 +61,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<String>> handleBadJsonForRegister(
-            HttpServletRequest request) {
+            HttpServletRequest request, HttpMessageNotReadableException ex) {
+
+        String uri = request.getRequestURI();
+
+        // Swagger completely bypass
+        if (uri.startsWith("/v3/api-docs") || uri.startsWith("/swagger-ui")) {
+            throw ex; // let Swagger handle it
+        }
 
         if (request.getRequestURI().equals("/users/register")) {
             return ResponseEntity

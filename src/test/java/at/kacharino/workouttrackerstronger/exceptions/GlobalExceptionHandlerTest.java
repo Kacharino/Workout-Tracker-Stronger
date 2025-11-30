@@ -4,16 +4,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.*;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = DummyController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import({GlobalExceptionHandler.class, DummyController.class})
 class GlobalExceptionHandlerTest {
 
     @Autowired
@@ -145,72 +147,4 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.timestamp").exists());
     }
 
-}
-/* -------------------------------------------------------------------------
-   DUMMY CONTROLLER (nur für Tests)
-   Jeder Endpoint wirft eine Exception → GlobalExceptionHandler fängt sie ab.
-   ------------------------------------------------------------------------- */
-
-@RestController
-class DummyController {
-
-    @GetMapping("/test-user-not-found")
-    public void throwUserNotFound() {
-        throw new UserNotFoundException("User not found");
-    }
-
-    @GetMapping("/test-user-already-exists")
-    public void throwUserAlreadyExists() {
-        throw new UserAlreadyExistsException("User already exists");
-    }
-
-    @GetMapping("/test-workout-not-found")
-    public void throwWorkoutNotFound() {
-        throw new WorkoutNotFoundException("Workout not found");
-    }
-
-    @GetMapping("/test-no-content")
-    public void throwNoContent() {
-        throw new NoContentException("No content available");
-    }
-
-    @GetMapping("/test-illegal-argument")
-    public void throwIllegalArgument() {
-        throw new IllegalArgumentException("Illegal argument");
-    }
-
-    @GetMapping("/test-validation")
-    public void throwValidation() {
-        throw new ValidationException("Validation failed");
-    }
-
-    @GetMapping("/test-invalid-credentials")
-    public void throwInvalidCredentials() {
-        throw new InvalidCredentialsException("Invalid credentials");
-    }
-
-    @PostMapping("/test-malformed")
-    public void malformedBody() {
-        throw new HttpMessageNotReadableException("bad json");
-    }
-
-    @GetMapping("/test-generic")
-    public void throwGeneric() {
-        throw new RuntimeException("something went wrong");
-    }
-
-    @PostMapping("/users/register")
-    public void throwForRegister() {
-        throw new HttpMessageNotReadableException("bad json for register");
-    }
-
-    @PostMapping("/users/login")
-    public void throwForLogin() {
-        throw new HttpMessageNotReadableException("bad json for login");
-    }
-
-    @PostMapping("/any-other-endpoint")
-    public void throwForOther() {
-        throw new HttpMessageNotReadableException("bad json generic");
-    }
 }
