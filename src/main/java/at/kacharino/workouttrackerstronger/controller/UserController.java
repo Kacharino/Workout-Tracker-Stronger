@@ -1,6 +1,7 @@
 package at.kacharino.workouttrackerstronger.controller;
 
 import at.kacharino.workouttrackerstronger.dtos.*;
+import at.kacharino.workouttrackerstronger.security.AuthUtil;
 import at.kacharino.workouttrackerstronger.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,11 +12,8 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-    UserService userService;
-
-    /*TODO:
-     * Nach all die Core Features: Authentifizierung mit JWT
-     * */
+    private UserService userService;
+    private AuthUtil authUtil;
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<String>> registerUser(@RequestBody RegisterRequestDto registerRequestDto) {
@@ -25,25 +23,28 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<String>> loginUser(@RequestBody LoginRequestDto loginRequestDto) {
-        userService.loginUser(loginRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("User login successful"));
+        String token = userService.loginUser(loginRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(token));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserDto>> getUserById(@PathVariable Long id) {
-        UserDto userDto = userService.getUserById(id);
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserDto>> getUserById() {
+        Long authenticatedUserId = authUtil.getAuthenticatedUserId();
+        UserDto userDto = userService.getUserById(authenticatedUserId);
         return ResponseEntity.ok(ApiResponse.success(userDto));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteUserById(@PathVariable Long id) {
-        userService.deleteUserById(id);
+    @DeleteMapping("/me")
+    public ResponseEntity<ApiResponse<String>> deleteUserById() {
+        Long authenticatedUserId = authUtil.getAuthenticatedUserId();
+        userService.deleteUserById(authenticatedUserId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success("User deleted successfully"));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserDto>> updateUserById(@PathVariable Long id, @RequestBody UpdateUserDto updateUserDto) {
-        var userDto = userService.updateUserById(id, updateUserDto);
+    @PatchMapping("/me")
+    public ResponseEntity<ApiResponse<UserDto>> updateUserById(@RequestBody UpdateUserDto updateUserDto) {
+        Long authenticatedUserId = authUtil.getAuthenticatedUserId();
+        var userDto = userService.updateUserById(authenticatedUserId, updateUserDto);
         return ResponseEntity.ok(ApiResponse.success(userDto));
     }
 

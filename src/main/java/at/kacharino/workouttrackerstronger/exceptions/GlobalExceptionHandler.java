@@ -59,6 +59,12 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("Unexpected error: " + ex.getMessage()));
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<String>> handleAccessDenied(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<String>> handleBadJsonForRegister(
             HttpServletRequest request, HttpMessageNotReadableException ex) {

@@ -2,10 +2,7 @@ package at.kacharino.workouttrackerstronger.services;
 
 import at.kacharino.workouttrackerstronger.dtos.UpdateWorkoutDto;
 import at.kacharino.workouttrackerstronger.dtos.WorkoutDto;
-import at.kacharino.workouttrackerstronger.exceptions.NoContentException;
-import at.kacharino.workouttrackerstronger.exceptions.UserNotFoundException;
-import at.kacharino.workouttrackerstronger.exceptions.ValidationException;
-import at.kacharino.workouttrackerstronger.exceptions.WorkoutNotFoundException;
+import at.kacharino.workouttrackerstronger.exceptions.*;
 import at.kacharino.workouttrackerstronger.mappers.WorkoutMapper;
 import at.kacharino.workouttrackerstronger.repositories.UserRepository;
 import at.kacharino.workouttrackerstronger.repositories.WorkoutRepository;
@@ -36,25 +33,32 @@ public class WorkoutService {
         return workoutMapper.toDto(savedWorkout);
     }
 
-    public WorkoutDto getWorkoutById(Long id) {
-        var workout = workoutRepository.findById(id)
+    public WorkoutDto getWorkoutById(Long authenticatedUserId, Long workoutId) {
+        var workout = workoutRepository.findById(workoutId)
                 .orElseThrow(() -> new WorkoutNotFoundException("Workout with given ID does not exist."));
+
+        if (!authenticatedUserId.equals(workout.getUser().getId())) {
+            throw new AccessDeniedException("Not allowed");
+        }
         return workoutMapper.toDto(workout);
     }
 
 
-    public List<WorkoutDto> getWorkoutsByUserId(Long userId) {
-        var workouts = workoutRepository.findByUserId(userId);
+    public List<WorkoutDto> getWorkoutsByUserId(Long authenticatedUserId) {
+        var workouts = workoutRepository.findByUserId(authenticatedUserId);
         if (workouts.isEmpty()) {
             throw new NoContentException("No workouts found for this user.");
         }
         return workouts.stream().map(workoutMapper::toDto).toList();
     }
 
-    public WorkoutDto updateWorkoutById(Long id, UpdateWorkoutDto updateWorkoutDto) {
+    public WorkoutDto updateWorkoutById(Long authenticatedUserId, Long id, UpdateWorkoutDto updateWorkoutDto) {
         var workout = workoutRepository.findById(id)
                 .orElseThrow(() -> new WorkoutNotFoundException("Workout with given ID does not exist."));
 
+        if (!workout.getUser().getId().equals(authenticatedUserId)){
+            throw new AccessDeniedException("Not allowed");
+        }
         // Optionale Updates pro feld
         if (updateWorkoutDto.getWorkoutName() != null) workout.setWorkoutName(updateWorkoutDto.getWorkoutName());
         if (updateWorkoutDto.getDate() != null) workout.setDate(updateWorkoutDto.getDate());
@@ -64,9 +68,14 @@ public class WorkoutService {
         return workoutMapper.toDto(savedWorkout);
     }
 
-    public String deleteWorkoutById(Long id) {
+    public String deleteWorkoutById(Long authenticatedUserId, Long id) {
         var workout = workoutRepository.findById(id)
                 .orElseThrow(() -> new WorkoutNotFoundException("Workout with given ID does not exist."));
+
+        if (!workout.getUser().getId().equals(authenticatedUserId)){
+            throw new AccessDeniedException("Not allowed");
+        }
+
         workoutRepository.delete(workout);
         return "Workout deleted successfully.";
     }

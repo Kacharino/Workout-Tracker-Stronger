@@ -1,5 +1,6 @@
 package at.kacharino.workouttrackerstronger.controller;
 
+import at.kacharino.workouttrackerstronger.security.AuthUtil;
 import at.kacharino.workouttrackerstronger.dtos.ApiResponse;
 import at.kacharino.workouttrackerstronger.dtos.UpdateWorkoutDto;
 import at.kacharino.workouttrackerstronger.dtos.WorkoutDto;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequestMapping("/workouts")
 public class WorkoutController {
     private WorkoutService workoutService;
+    private AuthUtil authUtil;
 
     /**
      * Todo:
@@ -27,27 +29,31 @@ public class WorkoutController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(resultWorkoutDto));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<WorkoutDto>> getWorkoutById(@PathVariable Long id) {
-        var resultWorkoutDto = workoutService.getWorkoutById(id);
+    @GetMapping("/{workoutId}")
+    public ResponseEntity<ApiResponse<WorkoutDto>> getWorkoutById(@PathVariable Long workoutId) {
+        Long authenticatedUserId = authUtil.getAuthenticatedUserId();
+        var resultWorkoutDto = workoutService.getWorkoutById(authenticatedUserId, workoutId);
         return ResponseEntity.ok(ApiResponse.success(resultWorkoutDto));
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse<List<WorkoutDto>>> getWorkoutsByUserId(@PathVariable Long userId) {
-        var workouts = workoutService.getWorkoutsByUserId(userId);
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<List<WorkoutDto>>> getWorkoutsByUserId() {
+        Long authenticatedUserId = authUtil.getAuthenticatedUserId();
+        var workouts = workoutService.getWorkoutsByUserId(authenticatedUserId);
         return ResponseEntity.ok(ApiResponse.success(workouts));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<WorkoutDto>> updateWorkoutById(@PathVariable Long id, @RequestBody UpdateWorkoutDto updateWorkoutDto) {
-        var workout = workoutService.updateWorkoutById(id, updateWorkoutDto);
+    @PatchMapping("/{workoutId}")
+    public ResponseEntity<ApiResponse<WorkoutDto>> updateWorkoutById(@PathVariable Long workoutId, @RequestBody UpdateWorkoutDto updateWorkoutDto) {
+        Long authenticatedUserId = authUtil.getAuthenticatedUserId();
+        var workout = workoutService.updateWorkoutById(authenticatedUserId, workoutId, updateWorkoutDto);
         return ResponseEntity.ok(ApiResponse.success(workout));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteWorkoutById(@PathVariable Long id) {
-        String message = workoutService.deleteWorkoutById(id);
+    @DeleteMapping("/{workoutId}")
+    public ResponseEntity<ApiResponse<String>> deleteWorkoutById(@PathVariable Long workoutId) {
+        Long authenticatedUserId = authUtil.getAuthenticatedUserId();
+        String message = workoutService.deleteWorkoutById(authenticatedUserId, workoutId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(message));
 
     }

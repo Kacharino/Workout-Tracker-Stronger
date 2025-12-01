@@ -20,6 +20,7 @@ public class UserService {
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
     private UserMapper userMapper;
+    private JwtService jwtService;
 
     /* TODO:
      * resetPassword
@@ -51,18 +52,26 @@ public class UserService {
         userRepository.save(newUser);
     }
 
-    public void loginUser(LoginRequestDto loginRequestDto) {
+    public String loginUser(LoginRequestDto loginRequestDto) {
         var user = userRepository.findByEmail(loginRequestDto.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User with the given email dont exists."));
 
         if (!(passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword()))) {
             throw new InvalidCredentialsException("Password is incorrect");
         }
+
+        return jwtService.generateToken(user.getEmail());
     }
 
     public UserDto getUserById(Long id) {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+        return userMapper.toDto(user);
+    }
+
+    public UserDto getUserByEmail(String email) {
+        var user = userRepository.findByEmail(email).orElseThrow(()
+                -> new UserNotFoundException("User not found with email: " + email));
         return userMapper.toDto(user);
     }
 

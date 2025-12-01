@@ -65,6 +65,8 @@ public class WorkoutControllerTest {
 
     @Test
     void shouldReturnRequestedWorkoutDto_whenWorkoutWasFoundById() throws Exception {
+        Long userId = 1L;
+        Long authId = 1L;
 
         var workoutDto = new WorkoutDto();
         workoutDto.setId(1L);
@@ -73,7 +75,7 @@ public class WorkoutControllerTest {
         workoutDto.setDuration(LocalTime.of(1, 2, 3));
         workoutDto.setUserId(2L);
 
-        when(workoutService.getWorkoutById(1L)).thenReturn(workoutDto);
+        when(workoutService.getWorkoutById(authId, userId)).thenReturn(workoutDto);
 
         mockMvc.perform(get("/workouts/{id}", 1L))
                 .andExpect(status().isOk())
@@ -83,7 +85,7 @@ public class WorkoutControllerTest {
                 .andExpect(jsonPath("$.data.duration").value("01:02:03"))
                 .andExpect(jsonPath("$.data.userId").value(2L));
 
-        verify(workoutService).getWorkoutById(1L);
+        verify(workoutService).getWorkoutById(authId, userId);
     }
 
     @Test
@@ -108,7 +110,7 @@ public class WorkoutControllerTest {
                 .andExpect(jsonPath("$.data[0].workoutName").value("Push"))
                 .andExpect(jsonPath("$.data[1].id").value(20))
                 .andExpect(jsonPath("$.data[1].workoutName").value("Pull"))
-                        .andExpect(jsonPath("$.data", hasSize(2)));
+                .andExpect(jsonPath("$.data", hasSize(2)));
 
         verify(workoutService).getWorkoutsByUserId(userId);
     }
@@ -116,6 +118,7 @@ public class WorkoutControllerTest {
     @Test
     void shouldReturnUpdatedWorkoutDto_whenUpdateWorkoutDtoIsValid() throws Exception {
         Long id = 1L;
+        Long authenticatedUserId = 1L;
 
         var updateWorkoutDto = new UpdateWorkoutDto();
         updateWorkoutDto.setWorkoutName("Pull in GYM");
@@ -128,7 +131,7 @@ public class WorkoutControllerTest {
         workoutDto.setWorkoutName("Pull in GYM");
         workoutDto.setDuration(LocalTime.of(2, 3, 4));
 
-        when(workoutService.updateWorkoutById(eq(id), any(UpdateWorkoutDto.class))).thenReturn(workoutDto);
+        when(workoutService.updateWorkoutById(authenticatedUserId, eq(id), any(UpdateWorkoutDto.class))).thenReturn(workoutDto);
 
         mockMvc.perform(patch("/workouts/{id}", id)
                         .contentType("application/json")
@@ -137,22 +140,23 @@ public class WorkoutControllerTest {
                 .andExpect(jsonPath("$.data.workoutName").value("Pull in GYM"))
                 .andExpect(jsonPath("$.data.duration").value("02:03:04"));
 
-        verify(workoutService).updateWorkoutById(eq(id), any(UpdateWorkoutDto.class));
+        verify(workoutService).updateWorkoutById(authenticatedUserId, eq(id), any(UpdateWorkoutDto.class));
     }
 
     @Test
     void shouldReturnSuccessMessage_whenWorkoutWasSuccessfullyDeleted() throws Exception {
         Long id = 1L;
+        Long authenticatedUserId = 1L;
 
         String message = "User deleted successfully";
 
-        when(workoutService.deleteWorkoutById(id)).thenReturn(message);
+        when(workoutService.deleteWorkoutById(authenticatedUserId, id)).thenReturn(message);
 
         mockMvc.perform(delete("/workouts/{id}", id))
                 .andExpect(status().isNoContent())
                 .andExpect(jsonPath("$.data").value(message));
 
-        verify(workoutService).deleteWorkoutById(id);
+        verify(workoutService).deleteWorkoutById(authenticatedUserId, id);
 
 
     }

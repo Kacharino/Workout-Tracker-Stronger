@@ -97,6 +97,8 @@ public class WorkoutServiceTest {
     @Test
     void shouldReturnWorkoutDto_whenWorkoutIdWasFound() {
         Long id = 1L;
+        Long authId = 1L;
+
         var workout = new Workout();
         var workoutDto = new WorkoutDto();
         workoutDto.setId(id);
@@ -104,7 +106,7 @@ public class WorkoutServiceTest {
         when(workoutRepository.findById(id)).thenReturn(Optional.of(workout));
         when(workoutMapper.toDto(workout)).thenReturn(workoutDto);
 
-        var result = workoutService.getWorkoutById(id);
+        var result = workoutService.getWorkoutById(authId, id);
 
         verify(workoutRepository).findById(id);
         verify(workoutMapper).toDto(workout);
@@ -115,11 +117,12 @@ public class WorkoutServiceTest {
     @Test
     void shouldThrowWorkoutNotFoundException_whenWorkoutIdWasNotFound() {
         Long id = 1L;
+        Long authId = 1L;
 
         when(workoutRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(WorkoutNotFoundException.class,
-                () -> workoutService.getWorkoutById(id));
+                () -> workoutService.getWorkoutById(authId, id));
     }
 
     // --------------------------------------------------------
@@ -129,6 +132,7 @@ public class WorkoutServiceTest {
     @Test
     void shouldReturnListOfWorkouts_whenWorkoutsFoundByUserId() {
         Long id = 1L;
+
         var workout1 = new Workout();
         var workout2 = new Workout();
         var workouts = List.of(workout1, workout2);
@@ -168,6 +172,7 @@ public class WorkoutServiceTest {
     @Test
     void shouldReturnWorkoutDto_whenUpdatedWorkoutDtoIsValid() {
         Long id = 1L;
+        Long authenticatedUserId = 1L;
         var updateWorkoutDto = new UpdateWorkoutDto();
         var workout = new Workout();
         var savedWorkout = new Workout();
@@ -181,7 +186,7 @@ public class WorkoutServiceTest {
         when(workoutRepository.save(workout)).thenReturn(savedWorkout);
         when(workoutMapper.toDto(savedWorkout)).thenReturn(workoutDto);
 
-        var result = workoutService.updateWorkoutById(id, updateWorkoutDto);
+        var result = workoutService.updateWorkoutById(authenticatedUserId, id, updateWorkoutDto);
 
         verify(workoutRepository).findById(id);
         verify(workoutRepository).save(workout);
@@ -192,6 +197,8 @@ public class WorkoutServiceTest {
     @Test
     void shouldReturnWorkoutDto_whenUpdatedWorkoutDtoFieldsIsNull() {
         Long id = 1L;
+        Long authenticatedUserId = 1L;
+
         var updateWorkoutDto = new UpdateWorkoutDto();
         var workout = new Workout();
         var savedWorkout = new Workout();
@@ -201,7 +208,7 @@ public class WorkoutServiceTest {
         when(workoutRepository.save(workout)).thenReturn(savedWorkout);
         when(workoutMapper.toDto(savedWorkout)).thenReturn(workoutDto);
 
-        var result = workoutService.updateWorkoutById(id, updateWorkoutDto);
+        var result = workoutService.updateWorkoutById(authenticatedUserId, id, updateWorkoutDto);
 
         verify(workoutRepository).findById(id);
         verify(workoutRepository).save(workout);
@@ -212,12 +219,14 @@ public class WorkoutServiceTest {
     @Test
     void shouldThrowWorkoutNotFoundException_whenWorkoutWasNotFoundById() {
         Long id = 1L;
+        Long authenticatedUserId = 1L;
+
         var updateWorkoutDto = new UpdateWorkoutDto();
 
         when(workoutRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(WorkoutNotFoundException.class,
-                () -> workoutService.updateWorkoutById(id, updateWorkoutDto));
+                () -> workoutService.updateWorkoutById(authenticatedUserId, id, updateWorkoutDto));
     }
 
     // --------------------------------------------------------
@@ -227,11 +236,13 @@ public class WorkoutServiceTest {
     @Test
     void shouldReturnStringWithSuccessMessage_whenWorkoutToBeDeletedFoundWithId() {
         Long id = 1L;
+        Long authenticatedUserId = 1L;
+
         var workout = new Workout();
 
         when(workoutRepository.findById(id)).thenReturn(Optional.of(workout));
 
-        var result = workoutService.deleteWorkoutById(id);
+        var result = workoutService.deleteWorkoutById(authenticatedUserId, id);
 
         verify(workoutRepository).findById(id);
         verify(workoutRepository).delete(workout);
@@ -242,10 +253,12 @@ public class WorkoutServiceTest {
     @Test
     void shouldThrowWorkoutNotFoundException_whenWorkoutWasNotFoundByIdWhenTryingToDelete() {
         Long id = 1L;
+        Long authenticatedUserId = 1L;
+
 
         when(workoutRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(WorkoutNotFoundException.class,
-                () -> workoutService.deleteWorkoutById(id));
+                () -> workoutService.deleteWorkoutById(authenticatedUserId, id));
     }
 }
