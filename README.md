@@ -1,4 +1,4 @@
-## 🏋️‍♂️ Workout Tracker Stronger
+## 🏋️‍♂️ Workout Tracker: Stronger
 
 Ein leichtgewichtiges Workout-Tracking-Backend auf Basis von **Spring Boot**, entwickelt für Sportler, die ihre Trainingseinheiten effizient verwalten möchten.
 
