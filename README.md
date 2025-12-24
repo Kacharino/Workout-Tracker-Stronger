@@ -1,6 +1,17 @@
-## 🏋️‍♂️ Workout Tracker: Stronger
+# 🏋️‍♂️ Workout Tracker: Stronger
 
 Ein leichtgewichtiges Workout-Tracking-Backend auf Basis von **Spring Boot**, entwickelt für Sportler, die ihre Trainingseinheiten effizient verwalten möchten.
+
+## 🎯 MVP-Ziel 
+
+Ziel ist eine vorzeigbare Web-Demo von **Stronger**, bei der Nutzer:
+
+- sich registrieren und einloggen können (JWT)
+- Trainingseinheiten erfassen können (Übungen + Sätze mit Wiederholungen/Gewicht)
+- ihre Trainingshistorie ansehen können
+- eine einfache Fortschrittsübersicht erhalten (z.B. Bestleistung pro Übung)
+
+Der Fokus liegt auf einer sauberen REST-API, klarer Architektur und einem stabilen Funktionsumfang, der sich später für eine mobile App (iOS) wiederverwenden lässt.
 
 ### 🔧 Features
 > Dieses Projekt befindet sich noch aktiv in Entwicklung. Weitere Features und Verbesserungen folgen kontinuierlich.
