@@ -1,0 +1,18 @@
+package at.kacharino.workouttrackerstronger.dtos;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDate;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class CreateWorkoutDto {
+    private String workoutName;
+    private LocalDate date;
+    private String duration;
+}

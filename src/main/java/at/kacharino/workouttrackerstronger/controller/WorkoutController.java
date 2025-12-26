@@ -1,5 +1,6 @@
 package at.kacharino.workouttrackerstronger.controller;
 
+import at.kacharino.workouttrackerstronger.dtos.CreateWorkoutDto;
 import at.kacharino.workouttrackerstronger.security.AuthUtil;
 import at.kacharino.workouttrackerstronger.dtos.ApiResponse;
 import at.kacharino.workouttrackerstronger.dtos.UpdateWorkoutDto;
@@ -19,13 +20,10 @@ public class WorkoutController {
     private WorkoutService workoutService;
     private AuthUtil authUtil;
 
-    /**
-     * Todo:
-     */
-
     @PostMapping
-    public ResponseEntity<ApiResponse<WorkoutDto>> createWorkout(@RequestBody WorkoutDto workoutDto) {
-        var resultWorkoutDto = workoutService.createWorkout(workoutDto);
+    public ResponseEntity<ApiResponse<WorkoutDto>> createWorkout(@RequestBody CreateWorkoutDto createWorkoutDto) {
+        Long authenticatedUserId = authUtil.getAuthenticatedUserId();
+        var resultWorkoutDto = workoutService.createWorkout(authenticatedUserId, createWorkoutDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(resultWorkoutDto));
     }
 

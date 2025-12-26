@@ -1,5 +1,6 @@
 package at.kacharino.workouttrackerstronger.mappers;
 
+import at.kacharino.workouttrackerstronger.dtos.CreateWorkoutDto;
 import at.kacharino.workouttrackerstronger.dtos.WorkoutDto;
 import at.kacharino.workouttrackerstronger.entities.User;
 import at.kacharino.workouttrackerstronger.entities.Workout;
@@ -14,14 +15,7 @@ public interface WorkoutMapper {
     WorkoutDto toDto(Workout workout);
 
     // DTO → Entity (userId → User)
-    @Mapping(target = "user", expression = "java(mapUser(workoutDto.getUserId()))")
-    Workout toEntity(WorkoutDto workoutDto);
+    Workout toEntity(CreateWorkoutDto createWorkoutDto);
 
-    // Hilfsmethode für MapStruct (manuell erstellt)
-    default User mapUser(Long userId) {
-        if (userId == null) return null;
-        User user = new User();
-        user.setId(userId);
-        return user;
-    }
+
 }

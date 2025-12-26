@@ -1,5 +1,6 @@
 package at.kacharino.workouttrackerstronger.services;
 
+import at.kacharino.workouttrackerstronger.dtos.CreateWorkoutDto;
 import at.kacharino.workouttrackerstronger.dtos.UpdateWorkoutDto;
 import at.kacharino.workouttrackerstronger.dtos.WorkoutDto;
 import at.kacharino.workouttrackerstronger.exceptions.*;
@@ -18,15 +19,15 @@ public class WorkoutService {
     private UserRepository userRepository;
     private WorkoutMapper workoutMapper;
 
-    public WorkoutDto createWorkout(WorkoutDto workoutDto) {
-        if (workoutDto.getWorkoutName() == null || workoutDto.getWorkoutName().isBlank()) {
+    public WorkoutDto createWorkout(Long authenticatedUserId, CreateWorkoutDto createWorkoutDto) {
+        if (createWorkoutDto.getWorkoutName() == null || createWorkoutDto.getWorkoutName().isBlank()) {
             throw new ValidationException("Workout name must not be empty.");
         }
         //userId muss existieren
-        var user = userRepository.findById(workoutDto.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + workoutDto.getUserId()));
+        var user = userRepository.findById(authenticatedUserId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + authenticatedUserId));
 
-        var workout = workoutMapper.toEntity(workoutDto);
+        var workout = workoutMapper.toEntity(createWorkoutDto);
         workout.setUser(user);
 
         var savedWorkout = workoutRepository.save(workout);

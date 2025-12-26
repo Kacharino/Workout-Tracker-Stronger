@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserController {
     private UserService userService;
+
     private AuthUtil authUtil;
 
     @PostMapping("/register")
