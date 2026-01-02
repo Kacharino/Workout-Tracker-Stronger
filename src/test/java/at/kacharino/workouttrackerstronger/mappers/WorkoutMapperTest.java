@@ -1,5 +1,6 @@
 package at.kacharino.workouttrackerstronger.mappers;
 
+import at.kacharino.workouttrackerstronger.dtos.CreateWorkoutDto;
 import at.kacharino.workouttrackerstronger.dtos.WorkoutDto;
 import at.kacharino.workouttrackerstronger.entities.User;
 import at.kacharino.workouttrackerstronger.entities.Workout;
@@ -43,24 +44,26 @@ class WorkoutMapperTest {
     @Test
     void shouldMapDtoToWorkout() {
         // Arrange
-        WorkoutDto dto = new WorkoutDto();
-        dto.setId(5L);
-        dto.setWorkoutName("Leg Day");
-        dto.setDate(LocalDate.of(2025, 2, 15));
-        dto.setDuration(LocalTime.of(2, 0, 0));
-        dto.setUserId(99L);
+        Long authenticatedUserId = 1L;
+        CreateWorkoutDto createWorkoutDto = new CreateWorkoutDto();
+        createWorkoutDto.setWorkoutName("Leg Day");
+        createWorkoutDto.setDate(LocalDate.of(2025, 2, 15));
+        createWorkoutDto.setDuration(LocalTime.of(2, 0, 0));
+
+        var user = new User();
+        user.setId(1L);
 
         // Act
-        Workout workout = workoutMapper.toEntity(dto);
+        var workout = workoutMapper.toEntity(createWorkoutDto);
+        workout.setUser(user);
 
         // Assert
         assertNotNull(workout);
-        assertEquals(5L, workout.getId());
         assertEquals("Leg Day", workout.getWorkoutName());
         assertEquals(LocalDate.of(2025, 2, 15), workout.getDate());
         assertEquals(LocalTime.of(2, 0, 0), workout.getDuration());
 
         assertNotNull(workout.getUser());
-        assertEquals(99L, workout.getUser().getId());
+        assertEquals(authenticatedUserId, workout.getUser().getId());
     }
 }

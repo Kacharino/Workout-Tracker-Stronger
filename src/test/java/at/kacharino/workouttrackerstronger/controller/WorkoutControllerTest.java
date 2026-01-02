@@ -1,7 +1,11 @@
 package at.kacharino.workouttrackerstronger.controller;
 
+import at.kacharino.workouttrackerstronger.dtos.CreateWorkoutDto;
 import at.kacharino.workouttrackerstronger.dtos.UpdateWorkoutDto;
 import at.kacharino.workouttrackerstronger.dtos.WorkoutDto;
+import at.kacharino.workouttrackerstronger.security.AuthUtil;
+import at.kacharino.workouttrackerstronger.security.UserDetailsServiceImpl;
+import at.kacharino.workouttrackerstronger.services.JwtService;
 import at.kacharino.workouttrackerstronger.services.WorkoutService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -35,38 +39,54 @@ public class WorkoutControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    @MockBean
+    AuthUtil authUtil;
+
+    @MockBean
+    JwtService jwtService;
+
+    @MockBean
+    UserDetailsServiceImpl userDetailsService;
+
+
     @Test
     void shouldReturn201AndResultWorkoutDto_whenWorkoutDtoIsValid() throws Exception {
+        Long authenticatedUserId = 1L;
+
+        var createdWorkoutDto = new CreateWorkoutDto();
+        createdWorkoutDto.setWorkoutName("Push");
+        createdWorkoutDto.setDate(LocalDate.of(2000, 11, 20));
+        createdWorkoutDto.setDuration(LocalTime.of(1, 2, 3));
+
 
         var workoutDto = new WorkoutDto();
-        workoutDto.setId(1L);
+        workoutDto.setId(2L);
         workoutDto.setWorkoutName("Push");
         workoutDto.setDate(LocalDate.of(2000, 11, 20));
         workoutDto.setDuration(LocalTime.of(1, 2, 3));
-        workoutDto.setUserId(2L);
+        workoutDto.setUserId(authenticatedUserId);
 
-        var json = objectMapper.writeValueAsString(workoutDto);
+        var json = objectMapper.writeValueAsString(createdWorkoutDto);
 
-        when(workoutService.createWorkout(any(WorkoutDto.class)))
+        when(authUtil.getAuthenticatedUserId()).thenReturn(authenticatedUserId);
+        when(workoutService.createWorkout(eq(authenticatedUserId), any(CreateWorkoutDto.class)))
                 .thenReturn(workoutDto);
 
         mockMvc.perform(post("/workouts")
                         .contentType("application/json")
                         .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.id").value(1))
                 .andExpect(jsonPath("$.data.workoutName").value("Push"))
                 .andExpect(jsonPath("$.data.date").value("2000-11-20"))
-                .andExpect(jsonPath("$.data.duration").value("01:02:03"))
-                .andExpect(jsonPath("$.data.userId").value(2));
+                .andExpect(jsonPath("$.data.duration").value("01:02:03"));
 
-        verify(workoutService).createWorkout(any(WorkoutDto.class));
+        verify(workoutService).createWorkout(eq(authenticatedUserId), any(CreateWorkoutDto.class));
     }
 
     @Test
     void shouldReturnRequestedWorkoutDto_whenWorkoutWasFoundById() throws Exception {
-        Long userId = 1L;
-        Long authId = 1L;
+        Long workoutId = 1L;
+        Long authenticatedUserId = 2L;
 
         var workoutDto = new WorkoutDto();
         workoutDto.setId(1L);
@@ -75,9 +95,10 @@ public class WorkoutControllerTest {
         workoutDto.setDuration(LocalTime.of(1, 2, 3));
         workoutDto.setUserId(2L);
 
-        when(workoutService.getWorkoutById(authId, userId)).thenReturn(workoutDto);
+        when(authUtil.getAuthenticatedUserId()).thenReturn(authenticatedUserId);
+        when(workoutService.getWorkoutById(authenticatedUserId, workoutId)).thenReturn(workoutDto);
 
-        mockMvc.perform(get("/workouts/{id}", 1L))
+        mockMvc.perform(get("/workouts/{workoutId}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(1))
                 .andExpect(jsonPath("$.data.workoutName").value("Push"))
@@ -85,12 +106,12 @@ public class WorkoutControllerTest {
                 .andExpect(jsonPath("$.data.duration").value("01:02:03"))
                 .andExpect(jsonPath("$.data.userId").value(2L));
 
-        verify(workoutService).getWorkoutById(authId, userId);
+        verify(workoutService).getWorkoutById(authenticatedUserId, workoutId);
     }
 
     @Test
     void shouldReturnListOfWorkouts_whenWorkoutsWasFoundWithUserId() throws Exception {
-        Long userId = 1L;
+        Long authenticatedUserId = 1L;
 
         var workoutDto1 = new WorkoutDto();
         workoutDto1.setId(10L);
@@ -102,9 +123,10 @@ public class WorkoutControllerTest {
 
         var workoutDtos = List.of(workoutDto1, workoutDto2);
 
-        when(workoutService.getWorkoutsByUserId(userId)).thenReturn(workoutDtos);
+        when(authUtil.getAuthenticatedUserId()).thenReturn(authenticatedUserId);
+        when(workoutService.getWorkoutsByUserId(authenticatedUserId)).thenReturn(workoutDtos);
 
-        mockMvc.perform(get("/workouts/user/{id}", userId))
+        mockMvc.perform(get("/workouts/me"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].id").value(10))
                 .andExpect(jsonPath("$.data[0].workoutName").value("Push"))
@@ -112,51 +134,54 @@ public class WorkoutControllerTest {
                 .andExpect(jsonPath("$.data[1].workoutName").value("Pull"))
                 .andExpect(jsonPath("$.data", hasSize(2)));
 
-        verify(workoutService).getWorkoutsByUserId(userId);
+        verify(workoutService).getWorkoutsByUserId(authenticatedUserId);
     }
 
     @Test
     void shouldReturnUpdatedWorkoutDto_whenUpdateWorkoutDtoIsValid() throws Exception {
-        Long id = 1L;
+        Long workoutId = 1L;
         Long authenticatedUserId = 1L;
 
         var updateWorkoutDto = new UpdateWorkoutDto();
-        updateWorkoutDto.setWorkoutName("Pull in GYM");
+        updateWorkoutDto.setWorkoutName("Pull im GYM");
         updateWorkoutDto.setDuration(LocalTime.of(2, 3, 4));
 
         var json = objectMapper.writeValueAsString(updateWorkoutDto);
 
         var workoutDto = new WorkoutDto();
-        workoutDto.setId(id);
-        workoutDto.setWorkoutName("Pull in GYM");
+        workoutDto.setId(workoutId);
+        workoutDto.setWorkoutName("Pull im GYM");
         workoutDto.setDuration(LocalTime.of(2, 3, 4));
 
-        when(workoutService.updateWorkoutById(authenticatedUserId, eq(id), any(UpdateWorkoutDto.class))).thenReturn(workoutDto);
+        when(authUtil.getAuthenticatedUserId()).thenReturn(authenticatedUserId);
+        when(workoutService.updateWorkoutById(eq(authenticatedUserId), eq(workoutId), any(UpdateWorkoutDto.class)))
+                .thenReturn(workoutDto);
 
-        mockMvc.perform(patch("/workouts/{id}", id)
+        mockMvc.perform(patch("/workouts/{workoutId}", workoutId)
                         .contentType("application/json")
                         .content(json))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.workoutName").value("Pull in GYM"))
+                .andExpect(jsonPath("$.data.workoutName").value("Pull im GYM"))
                 .andExpect(jsonPath("$.data.duration").value("02:03:04"));
 
-        verify(workoutService).updateWorkoutById(authenticatedUserId, eq(id), any(UpdateWorkoutDto.class));
+        verify(workoutService).updateWorkoutById(eq(authenticatedUserId), eq(workoutId), any(UpdateWorkoutDto.class));
     }
 
     @Test
     void shouldReturnSuccessMessage_whenWorkoutWasSuccessfullyDeleted() throws Exception {
-        Long id = 1L;
-        Long authenticatedUserId = 1L;
+        Long workoutId = 1L;
+        Long authenticatedUserId = 2L;
 
         String message = "User deleted successfully";
 
-        when(workoutService.deleteWorkoutById(authenticatedUserId, id)).thenReturn(message);
+        when(authUtil.getAuthenticatedUserId()).thenReturn(authenticatedUserId);
+        when(workoutService.deleteWorkoutById(authenticatedUserId, workoutId)).thenReturn(message);
 
-        mockMvc.perform(delete("/workouts/{id}", id))
+        mockMvc.perform(delete("/workouts/{workoutId}", workoutId))
                 .andExpect(status().isNoContent())
                 .andExpect(jsonPath("$.data").value(message));
 
-        verify(workoutService).deleteWorkoutById(authenticatedUserId, id);
+        verify(workoutService).deleteWorkoutById(authenticatedUserId, workoutId);
 
 
     }

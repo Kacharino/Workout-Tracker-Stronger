@@ -4,6 +4,9 @@ import at.kacharino.workouttrackerstronger.dtos.LoginRequestDto;
 import at.kacharino.workouttrackerstronger.dtos.RegisterRequestDto;
 import at.kacharino.workouttrackerstronger.dtos.UpdateUserDto;
 import at.kacharino.workouttrackerstronger.dtos.UserDto;
+import at.kacharino.workouttrackerstronger.security.AuthUtil;
+import at.kacharino.workouttrackerstronger.security.UserDetailsServiceImpl;
+import at.kacharino.workouttrackerstronger.services.JwtService;
 import at.kacharino.workouttrackerstronger.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -34,6 +37,15 @@ public class UserControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    @MockBean
+    AuthUtil authUtil;
+
+    @MockBean
+    UserDetailsServiceImpl userDetailsService;
+
+    @MockBean
+    JwtService jwtService;
+
     @Test
     void shouldReturn201AndSuccessMessage_whenRegisterRequestDtoIsValid() throws Exception {
         var registerRequestDto = new RegisterRequestDto(
@@ -55,68 +67,69 @@ public class UserControllerTest {
 
     @Test
     void shouldReturn201AndSuccessMessage_whenLoginRequestDtoIsValid() throws Exception {
-        var loginRequestDto = new LoginRequestDto(
-                "maxi@email.com", "MaximusPrime"
-        );
+        var loginRequestDto = new LoginRequestDto("maxi@email.com", "MaximusPrime");
+
+        String token = "superToken";
+
+        when(userService.loginUser(any(LoginRequestDto.class))).thenReturn(token);
+
         var json = objectMapper.writeValueAsString(loginRequestDto);
-
-        doNothing().when(userService).loginUser(any(LoginRequestDto.class));
-
         mockMvc.perform(post("/users/login")
                         .contentType("application/json")
                         .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data").value("User login successful"));
+                .andExpect(jsonPath("$.data").value(token));
 
         verify(userService).loginUser(any(LoginRequestDto.class));
-
     }
 
     @Test
     void shouldReturn200AndUserDtoWithSuccessMessage_whenUserIdWasFound() throws Exception {
-        Long id = 1L;
+        Long authenticatedUserId = 1L;
 
         var userDto = new UserDto();
-        userDto.setId(id);
+        userDto.setId(authenticatedUserId);
         userDto.setFirstName("Maxi");
         userDto.setLastName("Maximus");
         userDto.setEmail("max@email.com");
 
-        when(userService.getUserById(id)).thenReturn(userDto);
+        when(authUtil.getAuthenticatedUserId()).thenReturn(authenticatedUserId);
+        when(userService.getUserById(authenticatedUserId)).thenReturn(userDto);
 
-        mockMvc.perform(get("/users/{id}", id))
+        mockMvc.perform(get("/users/me"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.id").value(id))
+                .andExpect(jsonPath("$.data.id").value(authenticatedUserId))
                 .andExpect(jsonPath("$.data.email").value("max@email.com"));
 
-        verify(userService).getUserById(id);
+        verify(userService).getUserById(authenticatedUserId);
     }
 
     @Test
     void shouldReturn204AndSuccessMessage_whenUserIdWasFound() throws Exception {
-        Long id = 1L;
+        Long authenticatedUserId = 1L;
 
-        doNothing().when(userService).deleteUserById(id);
+        when(authUtil.getAuthenticatedUserId()).thenReturn(authenticatedUserId);
+        doNothing().when(userService).deleteUserById(authenticatedUserId);
 
-        mockMvc.perform(delete("/users/{id}", id))
+        mockMvc.perform(delete("/users/me"))
                 .andExpect(status().isNoContent())
                 .andExpect(jsonPath("$.data").value("User deleted successfully"));
 
-        verify(userService).deleteUserById(id);
+        verify(userService).deleteUserById(authenticatedUserId);
+        verify(authUtil).getAuthenticatedUserId();
     }
 
     @Test
     void shouldReturn200AndUserDtoWithSuccessMessage_whenUpdateUserDtoIsValid() throws Exception {
-        Long id = 1L;
+        Long authenticatedUserId = 1L;
 
         var updateUserDto = new UpdateUserDto();
         updateUserDto.setBirthdate(LocalDate.of(2001, 9, 11));
         updateUserDto.setWeight(72.4);
 
-        var json = objectMapper.writeValueAsString(updateUserDto);
 
         var returnedDto = new UserDto();
-        returnedDto.setId(id);
+        returnedDto.setId(authenticatedUserId);
         returnedDto.setFirstName("Maxi");
         returnedDto.setLastName("Maximus");
         returnedDto.setEmail("max@email.com");
@@ -124,10 +137,12 @@ public class UserControllerTest {
         returnedDto.setWeight(72.4);
         returnedDto.setHeight(177.0);
 
-        when(userService.updateUserById(eq(id), any(UpdateUserDto.class)))
+        when(authUtil.getAuthenticatedUserId()).thenReturn(authenticatedUserId);
+        when(userService.updateUserById(eq(authenticatedUserId), any(UpdateUserDto.class)))
                 .thenReturn(returnedDto);
 
-        mockMvc.perform(patch("/users/{id}", id)
+        var json = objectMapper.writeValueAsString(updateUserDto);
+        mockMvc.perform(patch("/users/me")
                         .contentType("application/json")
                         .content(json))
                 .andExpect(status().isOk())
@@ -140,7 +155,8 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.data.height").value(177.0));
 
 
-        verify(userService).updateUserById(eq(id), any(UpdateUserDto.class));
+        verify(userService).updateUserById(eq(authenticatedUserId), any(UpdateUserDto.class));
+        verify(authUtil).getAuthenticatedUserId();
     }
 
 

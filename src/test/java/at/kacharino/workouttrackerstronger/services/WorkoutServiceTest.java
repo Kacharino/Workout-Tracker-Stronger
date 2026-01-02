@@ -1,5 +1,6 @@
 package at.kacharino.workouttrackerstronger.services;
 
+import at.kacharino.workouttrackerstronger.dtos.CreateWorkoutDto;
 import at.kacharino.workouttrackerstronger.dtos.UpdateWorkoutDto;
 import at.kacharino.workouttrackerstronger.dtos.WorkoutDto;
 import at.kacharino.workouttrackerstronger.entities.User;
@@ -46,48 +47,50 @@ public class WorkoutServiceTest {
 
     @Test
     void shouldCreateWorkout_whenWorkoutDtoIsValid() {
-        Long id = 1L;
+        Long authenticatedUserId = 1L;
 
-        var workoutDto = new WorkoutDto();
-        workoutDto.setWorkoutName("Push");
-        workoutDto.setUserId(id);
-        workoutDto.setDate(LocalDate.of(2025, 11, 12));
+        var createWorkoutDto = new CreateWorkoutDto();
+        createWorkoutDto.setWorkoutName("Push");
+        createWorkoutDto.setDate(LocalDate.of(2025, 11, 12));
+        createWorkoutDto.setDuration(LocalTime.of(1,2, 22));
 
         var user = new User();
         var workout = new Workout();
         var savedWorkout = new Workout();
+        var workoutDto = new WorkoutDto();
 
-        when(userRepository.findById(workoutDto.getUserId())).thenReturn(Optional.of(user));
-        when(workoutMapper.toEntity(workoutDto)).thenReturn(workout);
+        when(userRepository.findById(authenticatedUserId)).thenReturn(Optional.of(user));
+        when(workoutMapper.toEntity(createWorkoutDto)).thenReturn(workout);
         when(workoutRepository.save(workout)).thenReturn(savedWorkout);
         when(workoutMapper.toDto(savedWorkout)).thenReturn(workoutDto);
 
-        var result = workoutService.createWorkout(workoutDto);
+        var result = workoutService.createWorkout(authenticatedUserId, createWorkoutDto);
 
-        verify(userRepository).findById(workoutDto.getUserId());
-        verify(workoutMapper).toEntity(workoutDto);
+        verify(userRepository).findById(authenticatedUserId);
+        verify(workoutMapper).toEntity(createWorkoutDto);
         verify(workoutRepository).save(workout);
         verify(workoutMapper).toDto(savedWorkout);
 
         assertEquals(workoutDto, result);
-
     }
 
     @Test
     void shouldThrowValidationException_whenWorkoutDtoNameIsEmpty() {
-        var workoutDto = new WorkoutDto();
+        var createWorkoutDto = new CreateWorkoutDto();
+        Long authenticatedUserId = 1L;
 
         assertThrows(ValidationException.class,
-                () -> workoutService.createWorkout(workoutDto));
+                () -> workoutService.createWorkout(authenticatedUserId, createWorkoutDto));
     }
 
     @Test
     void shouldThrowValidationException_whenWorkoutDtoNameIsBlank() {
-        var workoutDto = new WorkoutDto();
-        workoutDto.setWorkoutName("   ");
+        var createWorkoutDto = new CreateWorkoutDto();
+        Long authenticatedUserId = 1L;
+        createWorkoutDto.setWorkoutName("   ");
 
         assertThrows(ValidationException.class,
-                () -> workoutService.createWorkout(workoutDto));
+                () -> workoutService.createWorkout(authenticatedUserId, createWorkoutDto));
     }
 
     // --------------------------------------------------------
@@ -96,19 +99,22 @@ public class WorkoutServiceTest {
 
     @Test
     void shouldReturnWorkoutDto_whenWorkoutIdWasFound() {
-        Long id = 1L;
+        Long workoutId = 2L;
         Long authId = 1L;
 
         var workout = new Workout();
         var workoutDto = new WorkoutDto();
-        workoutDto.setId(id);
+        workoutDto.setId(workoutId);
+        var user = new User();
+        user.setId(authId);
+        workout.setUser(user);
 
-        when(workoutRepository.findById(id)).thenReturn(Optional.of(workout));
+        when(workoutRepository.findById(workoutId)).thenReturn(Optional.of(workout));
         when(workoutMapper.toDto(workout)).thenReturn(workoutDto);
 
-        var result = workoutService.getWorkoutById(authId, id);
+        var result = workoutService.getWorkoutById(authId, workoutId);
 
-        verify(workoutRepository).findById(id);
+        verify(workoutRepository).findById(workoutId);
         verify(workoutMapper).toDto(workout);
 
         assertEquals(workoutDto, result);
@@ -171,10 +177,13 @@ public class WorkoutServiceTest {
 
     @Test
     void shouldReturnWorkoutDto_whenUpdatedWorkoutDtoIsValid() {
-        Long id = 1L;
+        Long workoutId = 1L;
         Long authenticatedUserId = 1L;
+        var user = new User();
+        user.setId(authenticatedUserId);
         var updateWorkoutDto = new UpdateWorkoutDto();
         var workout = new Workout();
+        workout.setUser(user);
         var savedWorkout = new Workout();
         var workoutDto = new WorkoutDto();
 
@@ -182,13 +191,13 @@ public class WorkoutServiceTest {
         updateWorkoutDto.setDuration(LocalTime.of(1, 10, 22));
         updateWorkoutDto.setDate(LocalDate.of(2025, 11, 13));
 
-        when(workoutRepository.findById(id)).thenReturn(Optional.of(workout));
+        when(workoutRepository.findById(workoutId)).thenReturn(Optional.of(workout));
         when(workoutRepository.save(workout)).thenReturn(savedWorkout);
         when(workoutMapper.toDto(savedWorkout)).thenReturn(workoutDto);
 
-        var result = workoutService.updateWorkoutById(authenticatedUserId, id, updateWorkoutDto);
+        var result = workoutService.updateWorkoutById(authenticatedUserId, workoutId, updateWorkoutDto);
 
-        verify(workoutRepository).findById(id);
+        verify(workoutRepository).findById(workoutId);
         verify(workoutRepository).save(workout);
         verify(workoutMapper).toDto(savedWorkout);
         assertEquals(workoutDto, result);
@@ -199,8 +208,11 @@ public class WorkoutServiceTest {
         Long id = 1L;
         Long authenticatedUserId = 1L;
 
+        var user = new User();
+        user.setId(authenticatedUserId);
         var updateWorkoutDto = new UpdateWorkoutDto();
         var workout = new Workout();
+        workout.setUser(user);
         var savedWorkout = new Workout();
         var workoutDto = new WorkoutDto();
 
@@ -238,7 +250,10 @@ public class WorkoutServiceTest {
         Long id = 1L;
         Long authenticatedUserId = 1L;
 
+        var user = new User();
+        user.setId(authenticatedUserId);
         var workout = new Workout();
+        workout.setUser(user);
 
         when(workoutRepository.findById(id)).thenReturn(Optional.of(workout));
 

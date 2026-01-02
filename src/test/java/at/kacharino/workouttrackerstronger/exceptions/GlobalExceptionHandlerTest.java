@@ -1,9 +1,13 @@
 package at.kacharino.workouttrackerstronger.exceptions;
 
+import at.kacharino.workouttrackerstronger.security.JwtAuthenticationFilter;
+import at.kacharino.workouttrackerstronger.security.UserDetailsServiceImpl;
+import at.kacharino.workouttrackerstronger.services.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -20,6 +24,12 @@ class GlobalExceptionHandlerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    JwtService jwtService;
+
+    @MockBean
+    UserDetailsServiceImpl userDetailsService;
 
     // -------------------------
     // USER NOT FOUND (404)

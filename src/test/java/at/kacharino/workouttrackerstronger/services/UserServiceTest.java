@@ -11,6 +11,7 @@ import at.kacharino.workouttrackerstronger.exceptions.UserNotFoundException;
 import at.kacharino.workouttrackerstronger.exceptions.ValidationException;
 import at.kacharino.workouttrackerstronger.mappers.UserMapper;
 import at.kacharino.workouttrackerstronger.repositories.UserRepository;
+import at.kacharino.workouttrackerstronger.security.AuthUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,8 +24,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -39,6 +40,9 @@ class UserServiceTest {
 
     @Mock
     PasswordEncoder passwordEncoder;
+
+    @Mock
+    JwtService jwtService;
 
     // --------------------------------------------------------
     // registerNewUser()
@@ -186,14 +190,20 @@ class UserServiceTest {
         loginRequestDto.setPassword("maximusPrime");
 
         var user = new User();
+        user.setEmail("maxi@maxi.com");
         user.setPassword("maximusPrime");
 
         when(userRepository.findByEmail(loginRequestDto.getEmail())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword())).thenReturn(true);
+        when(jwtService.generateToken(user.getEmail())).thenReturn("superToken");
 
-        userService.loginUser(loginRequestDto);
+        var result = userService.loginUser(loginRequestDto);
 
+        assertEquals("superToken", result);
+        verify(userRepository).findByEmail(loginRequestDto.getEmail());
         verify(passwordEncoder).matches(loginRequestDto.getPassword(), user.getPassword());
+        verify(jwtService).generateToken(user.getEmail());
+        verifyNoMoreInteractions(userRepository, passwordEncoder, jwtService, userMapper);
     }
 
     @Test
