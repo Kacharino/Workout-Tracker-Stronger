@@ -52,7 +52,7 @@ public class WorkoutController {
     public ResponseEntity<ApiResponse<String>> deleteWorkoutById(@PathVariable Long workoutId) {
         Long authenticatedUserId = authUtil.getAuthenticatedUserId();
         String message = workoutService.deleteWorkoutById(authenticatedUserId, workoutId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(message));
+        return ResponseEntity.ok().body(ApiResponse.success(message));
 
     }
 

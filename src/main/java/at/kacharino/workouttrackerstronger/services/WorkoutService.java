@@ -47,9 +47,6 @@ public class WorkoutService {
 
     public List<WorkoutDto> getWorkoutsByUserId(Long authenticatedUserId) {
         var workouts = workoutRepository.findByUserId(authenticatedUserId);
-        if (workouts.isEmpty()) {
-            throw new NoContentException("No workouts found for this user.");
-        }
         return workouts.stream().map(workoutMapper::toDto).toList();
     }
 

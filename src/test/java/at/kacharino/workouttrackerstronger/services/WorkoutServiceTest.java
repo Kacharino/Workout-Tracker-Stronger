@@ -22,10 +22,9 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class WorkoutServiceTest {
@@ -162,13 +161,19 @@ public class WorkoutServiceTest {
     }
 
     @Test
-    void shouldThrowNoContentException_whenNoWorkoutsAreFound() {
-        Long id = 1L;
+    void shouldReturnEmptyWorkoutList_whenUserDontHasWorkouts() {
+        Long userId = 1L;
 
-        when(workoutRepository.findByUserId(id)).thenReturn(List.of());
+        when(workoutRepository.findByUserId(userId)).thenReturn(List.of());
 
-        assertThrows(NoContentException.class,
-                () -> workoutService.getWorkoutsByUserId(id));
+        var result = workoutService.getWorkoutsByUserId(userId);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(workoutRepository).findByUserId(userId);
+        verifyNoInteractions(workoutMapper);
+
     }
 
     // --------------------------------------------------------
