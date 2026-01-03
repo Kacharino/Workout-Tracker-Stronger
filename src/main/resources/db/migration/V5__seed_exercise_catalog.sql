@@ -1,0 +1,8 @@
+insert into exercise (name, description, category)
+VALUES ('Bench Press', 'The bench press is a compound upper-body exercise that primarily targets the chest, shoulders, and triceps. It is commonly performed with a barbell or dumbbells while lying on a bench.', 'Chest'),
+       ('Shoulder Press DB', 'The dumbbell shoulder press is a compound upper-body exercise that primarily targets the shoulders, with assistance from the triceps. It is performed by pressing dumbbells overhead from shoulder height, either seated or standing.', 'Shoulder'),
+       ('Lateral Raise DB', 'The dumbbell lateral raise is an isolation exercise that primarily targets the lateral deltoids. It is performed by lifting dumbbells out to the sides with controlled movement to shoulder height.', 'Shoulder'),
+       ('Lat Pulldown', 'The lat pulldown is a compound upper-body exercise that primarily targets the latissimus dorsi (back muscles). It is performed by pulling a bar down toward the chest while seated, engaging the upper back and arms.', 'Back'),
+       ('Cable Row', 'Cable Row is a compound upper-body exercise that primarily targets the mid-back, lats, and rear shoulders. It is performed by pulling a cable handle toward the torso in a controlled motion while keeping the chest upright.', 'Back'),
+       ('Back Squat', 'The back squat is a compound lower-body exercise that primarily targets the quadriceps, glutes, and hamstrings. It is performed by squatting down with a barbell resting across the upper back.', 'Legs'),
+       ('Bulgarian Split Squat', 'The Bulgarian split squat is a unilateral lower-body exercise that targets the quadriceps, glutes, and hamstrings. It is performed by squatting on one leg while the rear foot is elevated behind the body.', 'Legs')

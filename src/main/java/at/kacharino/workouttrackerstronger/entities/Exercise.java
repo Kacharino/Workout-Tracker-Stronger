@@ -1,9 +1,18 @@
 package at.kacharino.workouttrackerstronger.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-public class Excercise {
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "exercise")
+public class Exercise {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,15 +27,5 @@ public class Excercise {
 
     @Column(name = "category")
     private String category;
-
-    @Column(name = "weight")
-    private Float weight;
-
-    @Column(name = "sets")
-    private Integer sets;
-
-    @Column(name = "repetitions")
-    private Integer repetitions;
-
 
 }
