@@ -1,9 +1,13 @@
 package at.kacharino.workouttrackerstronger.services;
 
 import at.kacharino.workouttrackerstronger.dtos.CreateWorkoutDto;
+import at.kacharino.workouttrackerstronger.dtos.CreateWorkoutEntryDto;
 import at.kacharino.workouttrackerstronger.dtos.UpdateWorkoutDto;
 import at.kacharino.workouttrackerstronger.dtos.WorkoutDto;
-import at.kacharino.workouttrackerstronger.exceptions.*;
+import at.kacharino.workouttrackerstronger.exceptions.AccessDeniedException;
+import at.kacharino.workouttrackerstronger.exceptions.UserNotFoundException;
+import at.kacharino.workouttrackerstronger.exceptions.ValidationException;
+import at.kacharino.workouttrackerstronger.exceptions.WorkoutNotFoundException;
 import at.kacharino.workouttrackerstronger.mappers.WorkoutMapper;
 import at.kacharino.workouttrackerstronger.repositories.UserRepository;
 import at.kacharino.workouttrackerstronger.repositories.WorkoutRepository;
@@ -15,6 +19,7 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class WorkoutService {
+    private EntryService entryService;
     private WorkoutRepository workoutRepository;
     private UserRepository userRepository;
     private WorkoutMapper workoutMapper;
@@ -54,7 +59,7 @@ public class WorkoutService {
         var workout = workoutRepository.findById(id)
                 .orElseThrow(() -> new WorkoutNotFoundException("Workout with given ID does not exist."));
 
-        if (!workout.getUser().getId().equals(authenticatedUserId)){
+        if (!workout.getUser().getId().equals(authenticatedUserId)) {
             throw new AccessDeniedException("Not allowed");
         }
         // Optionale Updates pro feld
@@ -70,7 +75,7 @@ public class WorkoutService {
         var workout = workoutRepository.findById(id)
                 .orElseThrow(() -> new WorkoutNotFoundException("Workout with given ID does not exist."));
 
-        if (!workout.getUser().getId().equals(authenticatedUserId)){
+        if (!workout.getUser().getId().equals(authenticatedUserId)) {
             throw new AccessDeniedException("Not allowed");
         }
 

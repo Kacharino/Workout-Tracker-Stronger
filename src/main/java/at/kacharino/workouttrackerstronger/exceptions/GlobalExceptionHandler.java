@@ -29,6 +29,12 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
+    @ExceptionHandler(ExerciseNotFoundException.class)
+    public ResponseEntity<ApiResponse<String>> handleExerciseNotFound(ExerciseNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
     @ExceptionHandler(NoContentException.class)
     public ResponseEntity<ApiResponse<String>> handleNoContent(NoContentException ex) {
         return ResponseEntity.status(HttpStatus.NO_CONTENT)

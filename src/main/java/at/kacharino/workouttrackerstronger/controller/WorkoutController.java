@@ -1,10 +1,8 @@
 package at.kacharino.workouttrackerstronger.controller;
 
-import at.kacharino.workouttrackerstronger.dtos.CreateWorkoutDto;
+import at.kacharino.workouttrackerstronger.dtos.*;
 import at.kacharino.workouttrackerstronger.security.AuthUtil;
-import at.kacharino.workouttrackerstronger.dtos.ApiResponse;
-import at.kacharino.workouttrackerstronger.dtos.UpdateWorkoutDto;
-import at.kacharino.workouttrackerstronger.dtos.WorkoutDto;
+import at.kacharino.workouttrackerstronger.services.EntryService;
 import at.kacharino.workouttrackerstronger.services.WorkoutService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("/workouts")
 public class WorkoutController {
+    private EntryService entryService;
     private WorkoutService workoutService;
     private AuthUtil authUtil;
 
@@ -55,5 +54,20 @@ public class WorkoutController {
         return ResponseEntity.ok().body(ApiResponse.success(message));
 
     }
+
+    @PostMapping("/{workoutId}/entries")
+    public ResponseEntity<ApiResponse<Long>> addWorkoutEntryInWorkout(@PathVariable Long workoutId, @RequestBody CreateWorkoutEntryDto createWorkoutEntryDto){
+        Long authenticatedUserId = authUtil.getAuthenticatedUserId();
+        Long workoutEntryId = entryService.addEntry(authenticatedUserId, workoutId, createWorkoutEntryDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(workoutEntryId));
+    }
+
+    @GetMapping("/{workoutId}/entries")
+    public ResponseEntity<ApiResponse<List<WorkoutEntryResponseDto>>> getWorkoutEntries(@PathVariable Long workoutId){
+        Long authenticatedUserId = authUtil.getAuthenticatedUserId();
+        List<WorkoutEntryResponseDto> workoutEntryResponseDtos = entryService.getWorkoutEntries(authenticatedUserId, workoutId);
+        return ResponseEntity.ok(ApiResponse.success(workoutEntryResponseDtos));
+    }
+
 
 }
