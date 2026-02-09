@@ -57,7 +57,7 @@ Der Fokus liegt auf einer klaren REST-API, sauberer Architektur und Erweiterbark
 
 ### Voraussetzungen
 - Java 21
-- PostgreSQL (lokal laufend)
+- PostgreSQL (lokal) **oder** Docker (für PostgreSQL via Docker Compose)
 - Optional: Postman oder ähnliches Tool zum Testen der API
 
 ### Konfiguration
@@ -67,6 +67,23 @@ Das Projekt verwendet Umgebungsvariablen bzw. `application.yml` für:
 
 > Hinweis:  
 > Flyway-Migrationen werden **automatisch beim Start** der Anwendung ausgeführt.
+
+### PostgreSQL via Docker Compose (empfohlen)
+
+Für ein schnelles Setup kannst du PostgreSQL per Docker Compose starten:
+
+1. Lege im Projekt-Root eine Datei `docker-compose.yml` an (siehe Issue #8).
+2. Starte die Datenbank:
+
+```bash
+docker compose up -d
+```
+
+3. Die Datenbank läuft danach standardmäßig unter:
+- Host: `localhost`
+- Port: `5432`
+
+> Hinweis: Stelle sicher, dass deine `spring.datasource.*` Einstellungen auf diese DB zeigen.
 
 ### Starten der Anwendung
 - Über IntelliJ: Spring-Boot-Main-Klasse starten  
