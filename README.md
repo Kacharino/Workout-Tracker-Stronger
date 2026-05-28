@@ -43,13 +43,17 @@ Der Fokus liegt auf einer klaren REST-API, sauberer Architektur und Erweiterbark
 ---
 
 ## 🛠️ Tech Stack
-- Java 21
-- Spring Boot 3
-- Spring Security (JWT)
-- PostgreSQL
-- Flyway (Datenbank-Migrationen)
-- Springdoc OpenAPI (Swagger)
-- JUnit 5
+
+![Java](https://img.shields.io/badge/Java_21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot_3-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
+![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=spring-security&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![Flyway](https://img.shields.io/badge/Flyway-CC0200?style=for-the-badge&logo=flyway&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
+![JUnit5](https://img.shields.io/badge/JUnit_5-25A162?style=for-the-badge&logo=junit5&logoColor=white)
+![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white)
 
 ---
 
@@ -194,5 +198,24 @@ Geplante Erweiterungen (siehe GitHub Issues):
 
 ---
 
-## 🖼️ Demo / Screenshots
-> Screenshots oder eine Demo-GIF können hier später ergänzt werden.
+## 💡 Was ich gelernt habe
+
+Stronger war mein erstes wirklich ernsthaftes Solo-Backend-Projekt – 
+hier habe ich viele Konzepte zum ersten Mal selbst angewendet:
+
+- **Spring Boot & Java** – tiefes Verständnis für den Application Context, 
+  Dependency Injection und saubere Projektstruktur
+- **MVC-Architektur** – klare Trennung von Controller, Service und Repository, 
+  eigene DTOs und Exceptions
+- **Spring Security & JWT** – Authentifizierung selbst implementiert und verstanden
+- **PostgreSQL & Flyway** – Datenbankdesign und automatische Migrationsverwaltung
+- **JUnit 5** – Unit Tests selbst geschrieben, nicht nur kopiert
+- **Maven** – Build-Tool Grundlagen, Dependency Management
+- **Postman & REST APIs** – API-Endpunkte testen und mit JSON-Objekten arbeiten
+- **Docker Compose** – Deployment-Setup für die Datenbank
+- **Clean Code** – viel Wert auf Architektur und Lesbarkeit gelegt
+
+Stronger war kein Uni-Projekt sondern ein bewusstes Lernprojekt – 
+ich wollte wissen wie ein echtes Backend funktioniert, von Grund auf.
+
+---
